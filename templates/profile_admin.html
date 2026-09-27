@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Ryu♪とは編集{% endblock %}
+
+{% block content %}
+
+<h1>Ryu♪とは編集</h1>
+
+<form method="post">
+
+    <h2>GMご依頼料金</h2>
+
+    <textarea
+        name="gm_fee"
+        rows="8"
+        placeholder="GMご依頼料金を入力してください"
+    >{{ profile.gm_fee if profile else "" }}</textarea>
+
+    <h2>その他料金・補足</h2>
+
+<textarea
+    name="gm_fee_detail"
+    rows="8"
+    placeholder="その他の料金や補足を入力してください"
+>{{ profile.gm_fee_detail if profile else "" }}</textarea>
+
+
+    <h2>プロフィール</h2>
+
+    <textarea
+        name="bio"
+        rows="12"
+        placeholder="プロフィールを入力してください"
+    >{{ profile.bio if profile else "" }}</textarea>
+
+
+    <p>
+        <button type="submit" class="button">
+            保存する
+        </button>
+
+        <a href="{{ url_for('admin') }}" class="button">
+            管理画面に戻る
+        </a>
+    </p>
+
+</form>
+
+
+<section>
+
+    <h2>商品</h2>
+
+    <p>
+        <a href="{{ url_for('product_add') }}" class="button">
+            ＋ 商品を追加
+        </a>
+    </p>
+
+
+    {% if products %}
+
+        {% for product in products %}
+
+        <div class="event-card">
+
+            <h3>{{ product.name }}</h3>
+
+            {% if product.description %}
+            <p>{{ product.description }}</p>
+            {% endif %}
+
+            {% if product.price %}
+            <p>{{ product.price }}円</p>
+            {% endif %}
+
+            {% if product.sales_url %}
+            <p>
+                <a
+                    href="{{ product.sales_url }}"
+                    target="_blank"
+                    rel="noopener"
+                    class="button"
+                >
+                    販売ページを見る
+                </a>
+            </p>
+            {% endif %}
+
+            <p>
+               <div class="product-detail-actions">
+
+    <a
+        href="{{ url_for('product_edit', product_id=product.id) }}"
+        class="button"
+    >
+        編集
+    </a>
+
+    <form
+        method="post"
+        action="{{ url_for('product_delete', product_id=product.id) }}"
+        style="margin:0;"
+        onsubmit="return confirm('この商品を削除しますか？');"
+    >
+        <button type="submit" class="button">
+            削除
+        </button>
+    </form>
+
+</div>
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>商品はまだ登録されていません。</p>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

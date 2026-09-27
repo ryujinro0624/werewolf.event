@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ 'イベント編集' if event else 'イベント登録' }}{% endblock %}
+{% block content %}
+<h1>{{ 'イベント編集' if event else 'イベント登録' }}</h1>
+<form class="form" method="post" enctype="multipart/form-data">
+<label>イベント名<input name="name" value="{{ event.name if event else '' }}" required></label>
+<label>イベント画像<input type="file" name="image" accept="image/*"></label>
+{% if event and event.image_filename %}<p>現在の画像：{{ event.image_filename }}</p>{% endif %}
+<label>内容<textarea name="description" rows="8" required>{{ event.description if event else '' }}</textarea></label>
+<label>開催日<input type="date" name="event_date" value="{{ event.event_date if event else '' }}" required></label>
+<label>時間<input name="event_time" value="{{ event.event_time if event else '' }}" placeholder="18:00〜21:00" required></label>
+<label>料金
+    <div class="price-input">
+        <input id="price" type="number" name="price"
+               min="0" step="500"
+               value="{{ event.price if event else 2000 }}"
+               required>
+        <span>円</span>
+    </div>
+</label>
+<label>定員<input type="number" name="capacity" min="1" value="{{ event.capacity if event else '' }}" required></label>
+<label>会場<input name="venue" value="{{ event.venue if event else '' }}" required></label>
+<label>会場住所<input name="venue_address" value="{{ event.venue_address if event else '' }}"></label>
+<label>問い合わせ先<input name="contact" value="{{ event.contact if event else '' }}" required></label>
+<label>運営連絡先（追加）<input name="admin_email_recipients" value="{{ event.admin_email_recipients if event else '' }}" placeholder="複数の場合はカンマ区切り"></label>
+<label>主催<input name="organizer" value="{{ event.organizer if event else '' }}" required></label>
+<fieldset><legend>募集方式</legend>
+<label class="radio"><input type="radio" name="recruitment_type" value="first" {% if not event or event.recruitment_type == 'first' %}checked{% endif %}>先着型</label>
+<label class="radio"><input type="radio" name="recruitment_type" value="lottery" {% if event and event.recruitment_type == 'lottery' %}checked{% endif %}>抽選型</label>
+</fieldset>
+<fieldset><legend>残席表示（先着型のみ）</legend>
+<label>「○」に切り替える基準<input type="number" name="stock_circle_threshold" min="1" value="{{ event.stock_circle_threshold if event else 10 }}"></label>
+<label class="radio"><input type="checkbox" name="stock_circle_enabled" {% if not event or event.stock_circle_enabled %}checked{% endif %}>基準以上を「○」で表示する</label>
+<p>1〜4席：赤、5〜9席：黄、基準以上：青の「○」。0席は「満員」。</p>
+</fieldset>
+
+<fieldset>
+<legend>公開状況</legend>
+<label class="radio">
+    <input type="radio" name="publication_status" value="1"
+        {% if not event or event.is_published == 1 %}checked{% endif %}>
+    公開
+</label>
+<label class="radio">
+    <input type="radio" name="publication_status" value="2"
+        {% if event and event.is_published == 2 %}checked{% endif %}>
+    限定公開（イベント詳細URLを知っている人のみ）
+</label>
+<label class="radio">
+    <input type="radio" name="publication_status" value="0"
+        {% if event and event.is_published == 0 %}checked{% endif %}>
+    非公開
+</label>
+<p>公開：イベント一覧に表示されます。限定公開：一覧には表示されませんが、詳細URLから申し込みできます。</p>
+</fieldset>
+
+<div class="form-actions">
+    <button class="button" type="submit" name="save_type" value="save">
+        {{ '更新する' if event else 'イベントを登録' }}
+    </button>
+
+    <button class="button" type="submit" name="save_type" value="draft">
+        下書き保存
+    </button>
+
+    <a class="button secondary" href="{{ url_for('admin') }}">
+        保存せずに戻る
+    </a>
+</div>
+</form>
+{% endblock %}
+

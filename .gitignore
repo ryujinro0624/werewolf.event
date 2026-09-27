@@ -1,0 +1,14 @@
+.env
+.DS_Store
+__pycache__/
+*.pyc
+
+*.db
+*.log
+
+app_backup*.py
+app.py.before_*
+events_backup*.py
+events_backup*.db
+all_code.txt
+jinro_app_code.zip

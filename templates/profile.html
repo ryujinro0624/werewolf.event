@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Ryu♪とは<p>
+    <a href="{{ url_for('index') }}" class="button">
+        イベント一覧に戻る
+    </a>
+</p>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Ryu♪とは</h1>
+
+<section class="profile-section">
+    <h2>GMご依頼料金</h2>
+
+    <div class="gm-fee-display">
+    {{ profile.gm_fee|replace('\n', '<br>')|safe }}
+</div>
+<div class="gm-fee-detail">
+    {{ profile.gm_fee_detail|replace('\n', '<br>')|safe }}
+</div>
+</section>
+
+
+<section class="profile-section">
+
+    <h2>商品</h2>
+
+    {% if products %}
+
+        {% for product in products %}
+
+        <div class="event-detail product-detail">
+
+            <div class="event-detail-image">
+
+                {% set product_images = images_by_product[product.id] %}
+
+                {% if product_images %}
+
+                    <div class="product-main-image">
+                        <img
+                            id="product-image-{{ product.id }}"
+                            class="hero-image"
+                            src="{{ url_for('static', filename='uploads/' + product_images[0].image_filename) }}"
+                            alt="{{ product.name }}"
+                        >
+                    </div>
+
+                    {% if product_images|length > 1 %}
+                    <div class="product-thumbnails">
+
+                        {% for image in product_images %}
+                        <button
+                            type="button"
+                            class="product-thumbnail"
+                            onclick="changeProductImage(
+                                {{ product.id }},
+                                '{{ url_for('static', filename='uploads/' + image.image_filename) }}'
+                            )"
+                        >
+                            <img
+                                src="{{ url_for('static', filename='uploads/' + image.image_filename) }}"
+                                alt="{{ product.name }} {{ loop.index }}"
+                            >
+                        </button>
+                        {% endfor %}
+
+                    </div>
+                    {% endif %}
+
+                {% else %}
+
+                    <div class="product-no-image">
+                        商品画像はありません
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="event-detail-info">
+
+                <h2>{{ product.name }}</h2>
+
+                {% if product.description %}
+                <section>
+                    <h3>商品説明</h3>
+                    <div class="description">
+                        {{ product.description|replace('\n', '<br>')|safe }}
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if product.price %}
+                <section>
+                    <p>
+                        <strong>価格：</strong>{{ product.price }}円
+                    </p>
+                </section>
+                {% endif %}
+
+                {% if product.sales_url %}
+                <p>
+                    <a
+                        href="{{ product.sales_url }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="button large"
+                    >
+                        販売ページを見る
+                    </a>
+                </p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>現在、掲載中の商品はありません。</p>
+
+    {% endif %}
+
+</section>
+
+
+<section class="profile-section">
+
+    <h2>プロフィール</h2>
+
+    <div class="description">
+        {{ profile.bio|replace('\n', '<br>')|safe }}
+    </div>
+
+</section>
+
+
+<script>
+function changeProductImage(productId, imageUrl) {
+    const image = document.getElementById("product-image-" + productId);
+
+    if (image) {
+        image.src = imageUrl;
+    }
+}
+</script>
+
+{% endblock %}
+
+/* GMご依頼料金の表示 */
+.gm-fee-display {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}申込管理 - {{ event.name }}{% endblock %}
+
+{% block content %}
+
+<h1>申込管理</h1>
+<h2>{{ event.name }}</h2>
+
+<p>
+    <a class="button" href="{{ url_for('event_bulk_email', event_id=event.id) }}">
+        参加者へ一斉メール
+    </a>
+</p>
+
+{% if event.recruitment_type == 'lottery' %}
+<form method="post"
+      action="{{ url_for('run_lottery', event_id=event.id) }}"
+      onsubmit="return confirm('未抽選の応募者を抽選しますか？');">
+    <button class="button" type="submit">抽選を実行</button>
+</form>
+
+<form method="post"
+      action="{{ url_for('send_lottery_results', event_id=event.id) }}"
+      onsubmit="return confirm('当選・落選者へ当落メールを送信しますか？');">
+    <button class="button" type="submit">当落メールを送信</button>
+</form>
+{% endif %}
+
+<form method="post"
+      action="{{ url_for('update_applications', event_id=event.id) }}">
+
+<table>
+    <thead>
+        <tr>
+            <th>名前</th>
+            <th>メール</th>
+            <th>電話</th>
+            <th>状態</th>
+            <th>受付日時</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for item in applications %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.phone }}</td>
+
+            <td>
+                <select name="status_{{ item.id }}">
+                    <option value="accepted" {% if item.status == 'accepted' %}selected{% endif %}>参加確定</option>
+                    <option value="waitlist" {% if item.status == 'waitlist' %}selected{% endif %}>キャンセル待ち</option>
+                    <option value="contacting" {% if item.status == 'contacting' %}selected{% endif %}>打診中</option>
+                    <option value="cancelled" {% if item.status == 'cancelled' %}selected{% endif %}>キャンセル</option>
+                    <option value="pending" {% if item.status == 'pending' %}selected{% endif %}>抽選待ち</option>
+                    <option value="won" {% if item.status == 'won' %}selected{% endif %}>当選</option>
+                    <option value="lost" {% if item.status == 'lost' %}selected{% endif %}>落選</option>
+                </select>
+            </td>
+
+            <td>{{ item.created_at }}</td>
+
+            <td>
+                {% if item.status == 'waitlist' %}
+                <button class="button"
+                        type="submit"
+                        formaction="{{ url_for('promote_waitlist', application_id=item.id) }}"
+                        formmethod="post"
+                        onclick="return confirm('この申込を打診し、メールを送信しますか？');">
+                    繰り上げ
+                </button>
+                {% elif item.status == 'cancelled' %}
+                <button class="danger"
+                        type="submit"
+                        formaction="{{ url_for('delete_application', application_id=item.id) }}"
+                        formmethod="post"
+                        onclick="return confirm('このキャンセル済み申込を削除しますか？');">
+                    削除
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if not applications %}
+<p>申込はありません。</p>
+{% endif %}
+
+<div class="form-actions">
+    <button class="button" type="submit">更新</button>
+
+    <a class="button secondary"
+       href="{{ url_for('admin') }}">
+        保存せずに戻る
+    </a>
+</div>
+
+</form>
+
+{% endblock %}

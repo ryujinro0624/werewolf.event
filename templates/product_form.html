@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "商品を編集" if product else "商品を追加" }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ "商品を編集" if product else "商品を追加" }}</h1>
+
+<form method="post" class="form" enctype="multipart/form-data">
+
+    <label>
+        商品名
+        <input
+            type="text"
+            name="name"
+            value="{{ product.name if product else '' }}"
+            required
+        >
+    </label>
+
+    <label>
+        商品説明
+        <textarea
+            name="description"
+            rows="8"
+        >{{ product.description if product else '' }}</textarea>
+    </label>
+
+    <label>
+        価格
+        <input
+            type="text"
+            name="price"
+            value="{{ product.price if product else '' }}"
+            placeholder="例：1500"
+        >
+    </label>
+
+    <label>
+        販売URL
+        <input
+            type="url"
+            name="sales_url"
+            value="{{ product.sales_url if product else '' }}"
+            placeholder="https://..."
+        >
+    </label>
+
+    <h2>商品画像</h2>
+
+    <p>最大5枚まで登録できます。</p>
+
+    {% for i in range(1, 6) %}
+    <div>
+        <label>
+            商品画像 {{ i }}
+            <input
+                type="file"
+                name="image_{{ i }}"
+                accept="image/*"
+            >
+        </label>
+
+        {% for image in images|default([]) %}
+            {% if image.image_order == i %}
+            <div>
+                <img
+                    src="{{ url_for('static', filename='uploads/' + image.image_filename) }}"
+                    alt="商品画像{{ i }}"
+                    style="width:120px; aspect-ratio:1/1; object-fit:cover;"
+                >
+                <p>現在の画像</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <p>
+        <button type="submit" class="button">
+            {{ "変更を保存する" if product else "商品を追加する" }}
+        </button>
+
+        <a href="{{ url_for('profile_admin') }}" class="button">
+            戻る
+        </a>
+    </p>
+
+</form>
+
+{% endblock %}

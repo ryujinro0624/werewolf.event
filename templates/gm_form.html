@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}GM依頼・お問い合わせ<p>
+    <a href="{{ url_for('index') }}" class="button">
+        イベント一覧に戻る
+    </a>
+</p>
+
+<script>
+function toHalfWidth(value) {
+    return value.replace(/[！-～]/g, function(char) {
+        return String.fromCharCode(char.charCodeAt(0) - 0xFEE0);
+    }).replace(/　/g, " ");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const emailInput = document.querySelector('input[name="email"]');
+    const phoneInput = document.querySelector('input[name="phone"]');
+
+    if (emailInput) {
+        emailInput.addEventListener("input", function() {
+            this.value = toHalfWidth(this.value);
+        });
+    }
+
+    if (phoneInput) {
+        phoneInput.addEventListener("input", function() {
+            this.value = toHalfWidth(this.value);
+        });
+    }
+});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>GM依頼・お問い合わせはこちら</h1>
+
+<form class="form" method="post">
+
+<label>
+    内容
+    <select name="inquiry_type" id="inquiry_type" required>
+        <option value="GM依頼">GM依頼</option>
+        <option value="その他お問い合わせ">その他お問い合わせ</option>
+    </select>
+</label>
+
+<label>お名前<input name="name" required></label>
+
+<label>メールアドレス<input type="email" name="email" inputmode="email" autocomplete="email" required></label>
+
+<label>電話番号<input type="tel" name="phone" inputmode="tel" autocomplete="tel" required></label>
+
+<div id="gm-fields">
+
+    <label>
+        希望場所
+        <select name="preferred_place_type" id="preferred_place_type">
+            <option value="対面">対面</option>
+            <option value="オンライン">オンライン</option>
+        </select>
+    </label>
+
+    <label>
+        希望場所詳細
+        <span id="place-detail-help">※対面の方は会場を教えてください</span>
+        <input name="preferred_place" id="preferred_place">
+    </label>
+
+    <label>
+        希望日時
+        <input name="preferred_date">
+    </label>
+
+    <label>
+        希望ゲーム内容
+        <textarea name="game_content" rows="4"></textarea>
+    </label>
+
+    <label>
+        その他ご要望等ございましたらご記載ください。
+        <textarea name="message" rows="5"></textarea>
+    </label>
+
+</div>
+
+<div id="inquiry-fields" style="display: none;">
+
+    <label>
+        お問い合わせ内容をご記載ください。
+        <textarea name="inquiry_message" id="inquiry_message" rows="7"></textarea>
+    </label>
+
+</div>
+
+<button class="button large">送信する</button>
+
+</form>
+
+<script>
+const inquiryType = document.getElementById("inquiry_type");
+const gmFields = document.getElementById("gm-fields");
+const inquiryFields = document.getElementById("inquiry-fields");
+const placeType = document.getElementById("preferred_place_type");
+const placeHelp = document.getElementById("place-detail-help");
+
+function updateForm() {
+    const isGM = inquiryType.value === "GM依頼";
+
+    gmFields.style.display = isGM ? "block" : "none";
+    inquiryFields.style.display = isGM ? "none" : "block";
+}
+
+function updatePlaceHelp() {
+    if (placeType.value === "対面") {
+        placeHelp.textContent = "※対面の方は会場を教えてください";
+    } else {
+        placeHelp.textContent = "※オンラインの方はツール名を教えてください";
+    }
+}
+
+inquiryType.addEventListener("change", updateForm);
+placeType.addEventListener("change", updatePlaceHelp);
+
+updateForm();
+updatePlaceHelp();
+</script>
+
+{% endblock %}

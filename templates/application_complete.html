@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "予約完了" if event.recruitment_type == "first" else "応募完了" }}{% endblock %}
+
+{% block content %}
+
+<div class="complete-page">
+
+    {% if event.recruitment_type == "first" %}
+        {% if status == "accepted" %}
+            <h1>予約完了</h1>
+            <p>予約を受け付けました。</p>
+        {% else %}
+            <h1>キャンセル待ち受付完了</h1>
+            <p>定員に達しているため、キャンセル待ちとして受け付けました。</p>
+        {% endif %}
+    {% else %}
+        <h1>抽選応募完了</h1>
+        <p>抽選への応募を受け付けました。</p>
+        <p>当選・落選の結果は後日ご案内します。</p>
+    {% endif %}
+
+    <p><strong>{{ event.name }}</strong></p>
+
+    <a class="button large" href="{{ url_for('index') }}">
+        トップに戻る
+    </a>
+
+</div>
+
+{% endblock %}

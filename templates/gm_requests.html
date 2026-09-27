@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}GM依頼・お問い合わせ一覧{% endblock %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>GM依頼・お問い合わせ一覧</h1>
+
+    <div>
+        <a class="button" href="{{ url_for('admin') }}">管理画面に戻る</a>
+    </div>
+</div>
+
+{% if requests %}
+
+<table>
+    <thead>
+        <tr>
+            <th>受付日時</th>
+            <th>内容</th>
+            <th>名前</th>
+            <th>対応状況</th>
+            <th>詳細</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.created_at }}</td>
+            <td>{{ request.inquiry_type }}</td>
+            <td>{{ request.name }}</td>
+            <td>
+                {% if request.status == "未対応" %}
+                    <span class="gm-status gm-status-unhandled">未対応</span>
+                {% elif request.status == "対応中" %}
+                    <span class="gm-status gm-status-progress">対応中</span>
+                {% elif request.status == "対応済み" %}
+                    <span class="gm-status gm-status-done">対応済み</span>
+                {% endif %}
+            </td>
+            <td>
+                <a class="button" href="{{ url_for('gm_request_detail', request_id=request.id) }}">
+                    詳細
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+
+<p>GM依頼・お問い合わせはまだありません。</p>
+
+{% endif %}
+
+{% endblock %}

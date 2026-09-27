@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}お問い合わせ詳細{% endblock %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>お問い合わせ詳細</h1>
+
+    <div>
+        <a class="button" href="{{ url_for('gm_requests') }}">一覧に戻る</a>
+    </div>
+</div>
+
+<h2>対応状況</h2>
+
+<form method="post" style="margin-bottom: 30px;">
+    <input type="hidden" name="action" value="update_status">
+
+    <label>
+        対応状況
+        <select name="status">
+            <option value="未対応" {% if gm_request.status == "未対応" %}selected{% endif %}>未対応</option>
+            <option value="対応中" {% if gm_request.status == "対応中" %}selected{% endif %}>対応中</option>
+            <option value="対応済み" {% if gm_request.status == "対応済み" %}selected{% endif %}>対応済み</option>
+        </select>
+    </label>
+
+    <button class="button" type="submit">対応状況を更新</button>
+</form>
+
+<h2>お問い合わせ内容</h2>
+
+<table>
+    <tbody>
+        <tr>
+            <th>受付日時</th>
+            <td>{{ gm_request.created_at }}</td>
+        </tr>
+
+        <tr>
+            <th>内容</th>
+            <td>{{ gm_request.inquiry_type }}</td>
+        </tr>
+
+        <tr>
+            <th>お名前</th>
+            <td>{{ gm_request.name }}</td>
+        </tr>
+
+        <tr>
+            <th>メールアドレス</th>
+            <td>{{ gm_request.email }}</td>
+        </tr>
+
+        <tr>
+            <th>電話番号</th>
+            <td>{{ gm_request.phone }}</td>
+        </tr>
+
+        <tr>
+            <th>希望場所</th>
+            <td>{{ gm_request.preferred_place_type }}</td>
+        </tr>
+
+        <tr>
+            <th>希望場所詳細</th>
+            <td>{{ gm_request.preferred_place }}</td>
+        </tr>
+
+        <tr>
+            <th>希望日時</th>
+            <td>{{ gm_request.preferred_date }}</td>
+        </tr>
+
+        <tr>
+            <th>希望ゲーム内容</th>
+            <td style="white-space: pre-wrap;">{{ gm_request.game_content }}</td>
+        </tr>
+
+        <tr>
+            <th>その他ご要望・お問い合わせ内容</th>
+            <td style="white-space: pre-wrap;">{{ gm_request.message }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2>このお問い合わせについてご連絡する</h2>
+
+<form class="form" method="post">
+
+    <p>
+        送信先：{{ gm_request.email }}
+    </p>
+
+    <label>
+        件名
+        <input type="text" name="subject" required>
+    </label>
+
+    <label>
+        本文
+        <textarea name="body" rows="12" required></textarea>
+    </label>
+
+    <button class="button large" type="submit">
+        このお問い合わせについてご連絡する
+    </button>
+
+</form>
+
+{% endblock %}

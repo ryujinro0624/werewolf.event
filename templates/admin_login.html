@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}管理者ログイン - Ryu♪の人狼イベント{% endblock %}
+
+{% block content %}
+
+<div class="form">
+    <h1>管理者ログイン</h1>
+
+    <form method="post">
+
+        <label>
+            ユーザー名
+            <input
+                type="text"
+                name="username"
+                autocomplete="username"
+                required
+            >
+        </label>
+
+        <label>
+            パスワード
+            <input
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                required
+            >
+        </label>
+
+        <button type="submit" class="button">
+            ログイン
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

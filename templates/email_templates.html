@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}メールテンプレート設定{% endblock %}
+
+{% block content %}
+
+<h1>メールテンプレート設定</h1>
+
+<p>自動送信するメールの件名・本文を設定できます。</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>メールの種類</th>
+            <th>自動送信</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for template in templates %}
+        <tr>
+            <td>{{ template.name }}</td>
+
+            <td>
+                {% if template.enabled %}
+                    有効
+                {% else %}
+                    無効
+                {% endif %}
+            </td>
+
+            <td>
+                <a class="button"
+                   href="{{ url_for('edit_email_template', template_id=template.id) }}">
+                    編集
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if not templates %}
+<p>メールテンプレートがありません。</p>
+{% endif %}
+
+<div class="form-actions">
+    <a class="button secondary"
+       href="{{ url_for('admin') }}">
+        管理画面に戻る
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}参加者へ一斉メール - {{ event.name }}{% endblock %}
+
+{% block content %}
+
+<div class="admin-header">
+    <h1>参加者へ一斉メール</h1>
+
+    <div>
+        <a class="button"
+           href="{{ url_for('event_applications', event_id=event.id) }}">
+            申込管理に戻る
+        </a>
+    </div>
+</div>
+
+<h2>{{ event.name }}</h2>
+
+<p>
+    送信対象：<strong>{{ participants|length }}名</strong>
+</p>
+
+{% if participants %}
+
+<h2>送信対象者</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>名前</th>
+            <th>メールアドレス</th>
+            <th>参加状況</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for participant in participants %}
+        <tr>
+            <td>{{ participant.name }}</td>
+            <td>{{ participant.email }}</td>
+            <td>
+                {% if participant.status == "accepted" %}
+                    予約確定
+                {% elif participant.status == "won" %}
+                    当選
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<h2>メール内容</h2>
+
+<p>
+    宛先：{{ admin_email }}<br>
+    参加者：BCCで送信
+</p>
+
+<form class="form"
+      method="post"
+      onsubmit="return confirm('{{ participants|length }}名の参加者へ一斉メールを送信します。よろしいですか？');">
+
+    <label>
+        件名
+        <input type="text"
+               name="subject"
+               placeholder="例：【○月○日】当日のご案内"
+               required>
+    </label>
+
+    <label>
+        本文
+        <textarea name="body"
+                  rows="15"
+                  placeholder="参加者への連絡内容を入力してください。"
+                  required></textarea>
+    </label>
+
+    <button class="button large" type="submit">
+        参加者へ一斉送信
+    </button>
+
+</form>
+
+{% else %}
+
+<p>
+    現在、参加確定している参加者はいません。
+</p>
+
+{% endif %}
+
+{% endblock %}

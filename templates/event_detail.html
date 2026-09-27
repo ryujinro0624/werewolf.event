@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.name }}<p>
+    <a href="{{ url_for('index') }}" class="button">
+        イベント一覧に戻る
+    </a>
+</p>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="event-detail">
+
+    <div class="event-detail-image">
+        {% if event.image_filename %}
+        <img class="hero-image" src="{{ url_for('static', filename='uploads/' + event.image_filename) }}" alt="{{ event.name }}">
+        {% endif %}
+    </div>
+
+    <div class="event-detail-info">
+
+        <div class="event-type">
+            {{ "先着" if event.recruitment_type == "first" else "抽選" }}
+        </div>
+
+        <h1>{{ event.name }}</h1>
+
+        <section>
+            <h2>内容</h2>
+            <p class="description">{{ event.description }}</p>
+        </section>
+
+        <section class="info">
+            <p><strong>開催日：</strong>{{ event.event_date }}</p>
+            <p><strong>時間：</strong>{{ event.event_time }}</p>
+            <p><strong>料金：</strong>{{ "無料" if event.price|int == 0 else event.price ~ "円" }}</p>
+            <p><strong>定員：</strong>{{ event.capacity }}名</p>
+
+            {% if event.recruitment_type == 'first' %}
+            <p>
+                <strong>受付状況：</strong>
+                <span class="stock {{ stock_class }}">{{ stock_text }}</span>
+            </p>
+            {% endif %}
+
+            <p><strong>会場：</strong>{{ event.venue }}</p>
+
+            {% if event.venue_address %}
+            <p><strong>会場住所：</strong>{{ event.venue_address }}</p>
+            {% endif %}
+
+            <p><strong>問い合わせ先：</strong>{{ event.contact }}</p>
+            <p><strong>主催：</strong>{{ event.organizer }}</p>
+        </section>
+
+        {% if event.recruitment_type == "first" %}
+        <a class="button large" href="{{ url_for('apply_event', event_id=event.id) }}">
+            {{ "キャンセル待ちフォーム" if remaining <= 0 else "予約する" }}
+        </a>
+        {% else %}
+        <a class="button large" href="{{ url_for('apply_event', event_id=event.id) }}">
+            抽選に応募する
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

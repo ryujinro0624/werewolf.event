@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}メールテンプレート編集{% endblock %}
+
+{% block content %}
+
+<h1>メールテンプレート編集</h1>
+
+<h2>{{ template.name }}</h2>
+
+<form class="form" method="post">
+
+    <label>
+        メールの種類
+        <input type="text" value="{{ template.name }}" disabled>
+    </label>
+
+    <label>
+        件名
+        <input type="text"
+               name="subject"
+               value="{{ template.subject }}"
+               required>
+    </label>
+
+    <label>
+        本文
+        <textarea name="body"
+                  rows="18"
+                  required>{{ template.body }}</textarea>
+    </label>
+
+    <label>
+        <input type="checkbox"
+               name="enabled"
+               {% if template.enabled %}checked{% endif %}>
+        このメールを自動送信する
+    </label>
+
+    <div class="form-actions">
+
+        <button class="button" type="submit">
+            保存する
+        </button>
+
+        <a class="button secondary"
+           href="{{ url_for('email_templates') }}">
+            保存せずに戻る
+        </a>
+
+    </div>
+
+</form>
+
+<div class="template-help">
+    <h3>使用できる変数</h3>
+
+    <ul>
+        <li><code>{{ "{{name}}" }}</code> → 申込者名</li>
+        <li><code>{{ "{{email}}" }}</code> → メールアドレス</li>
+        <li><code>{{ "{{event_name}}" }}</code> → イベント名</li>
+        <li><code>{{ "{{event_date}}" }}</code> → 開催日</li>
+        <li><code>{{ "{{event_time}}" }}</code> → 開催時間</li>
+        <li><code>{{ "{{venue}}" }}</code> → 会場</li>
+        <li><code>{{ "{{price}}" }}</code> → 料金</li>
+        <li><code>{{ "{{organizer}}" }}</code> → 主催</li>
+        <li><code>{{ "{{contact}}" }}</code> → 問い合わせ先</li>
+        <li><code>{{ "{{message}}" }}</code> → 問い合わせ内容</li>
+    </ul>
+</div>
+
+{% endblock %}

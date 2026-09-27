@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ '予約' if event.recruitment_type == 'first' else '抽選応募' }} - {{ event.name }}<script>
+function toHalfWidth(value) {
+    return value.replace(/[！-～]/g, function(char) {
+        return String.fromCharCode(char.charCodeAt(0) - 0xFEE0);
+    }).replace(/　/g, " ");
+}
+
+const emailInput = document.querySelector('input[name="email"]');
+const phoneInput = document.querySelector('input[name="phone"]');
+
+if (emailInput) {
+    emailInput.addEventListener("input", function() {
+        this.value = toHalfWidth(this.value);
+    });
+}
+
+if (phoneInput) {
+    phoneInput.addEventListener("input", function() {
+        this.value = toHalfWidth(this.value);
+    });
+}
+</script>
+
+{% endblock %}
+{% block content %}
+<h1>
+{% if event.recruitment_type == "first" %}
+    {{ "キャンセル待ちフォーム" if remaining <= 0 else "予約する" }}
+{% else %}
+    抽選に応募する
+{% endif %}
+</h1>
+<p><strong>{{ event.name }}</strong></p>
+<form class="form" method="post">
+    <label>お名前<input type="text" name="name" required></label>
+    <label>メールアドレス<input type="email" name="email" inputmode="email" autocomplete="email" required></label>
+    <label>電話番号<input type="tel" name="phone" inputmode="tel" autocomplete="tel" required></label>
+    <label>ご質問ご連絡事項<textarea name="message" rows="6"></textarea></label>
+    <button class="button large" type="submit">
+{% if event.recruitment_type == "first" %}
+    {{ "キャンセル待ちフォーム" if remaining <= 0 else "予約する" }}
+{% else %}
+    抽選に応募する
+{% endif %}
+</button>
+</form>
+{% endblock %}

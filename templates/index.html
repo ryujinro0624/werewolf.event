@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}イベント一覧{% endblock %}
+{% block content %}
+<h1>イベント一覧</h1>
+{% if events %}
+<div class="event-list">
+{% for event in events %}
+<article class="event-card">
+    {% if event.image_filename %}<img src="{{ url_for('static', filename='uploads/' + event.image_filename) }}" alt="{{ event.name }}">{% endif %}
+    <div class="event-card-body">
+        <div class="event-type">{{ "先着" if event.recruitment_type == "first" else "抽選" }}</div>
+        <h2><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.name }}</a></h2>
+        <p>{{ event.event_date }}　{{ event.event_time }}</p>
+        <div class="event-card-actions">
+            <a class="button" href="{{ url_for('event_detail', event_id=event.id) }}">{{ "詳細確認・予約" if event.recruitment_type == "first" else "抽選に応募する" }}</a>
+
+            {% if event.recruitment_type == "first" %}
+                <span class="stock {{ event_stock[event.id].class }}">
+                    {{ event_stock[event.id].text }}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</article>
+{% endfor %}
+</div>
+{% else %}<p>現在、公開中のイベントはありません。</p>{% endif %}
+{% endblock %}
