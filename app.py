@@ -91,6 +91,10 @@ def init_db():
         conn.execute("ALTER TABLE events ADD COLUMN stock_circle_threshold INTEGER NOT NULL DEFAULT 10")
     if "stock_circle_enabled" not in columns:
         conn.execute("ALTER TABLE events ADD COLUMN stock_circle_enabled INTEGER NOT NULL DEFAULT 1")
+    if "venue_address" not in columns:
+        conn.execute("ALTER TABLE events ADD COLUMN venue_address TEXT")
+    if "admin_email_recipients" not in columns:
+        conn.execute("ALTER TABLE events ADD COLUMN admin_email_recipients TEXT DEFAULT ''")
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS applications (
@@ -120,6 +124,12 @@ def init_db():
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    gm_columns = {row[1] for row in conn.execute("PRAGMA table_info(gm_requests)").fetchall()}
+    if "inquiry_type" not in gm_columns:
+        conn.execute("ALTER TABLE gm_requests ADD COLUMN inquiry_type TEXT NOT NULL DEFAULT 'GM依頼'")
+    if "preferred_place_type" not in gm_columns:
+        conn.execute("ALTER TABLE gm_requests ADD COLUMN preferred_place_type TEXT NOT NULL DEFAULT ''")
+
     conn.execute("""
         CREATE TABLE IF NOT EXISTS profile (
             id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -1821,6 +1831,7 @@ def run_lottery(event_id):
     return redirect(url_for("event_applications", event_id=event_id))
 
 
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     app.run(debug=False, port=5001)

@@ -12,12 +12,11 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", sans-serif;
     color: #fff;
     background:
-        linear-gradient(rgba(24, 15, 10, 0.58), rgba(24, 15, 10, 0.58)),
         url("/static/site-background.jpg") center center / cover fixed no-repeat;
 }
 
 header {
-    background: rgba(30, 18, 12, 0.90);
+    background: rgba(8, 15, 28, 0.88);
     color: #fff;
     border-bottom: 1px solid rgba(216, 183, 106, 0.65);
     backdrop-filter: blur(8px);
@@ -71,7 +70,7 @@ p {
 }
 
 .event-card {
-    background: rgba(48, 26, 16, 0.86);
+    background: rgba(10, 20, 38, 0.86);
     border: 1px solid rgba(216, 183, 106, 0.48);
     border-radius: 10px;
     overflow: hidden;
@@ -121,7 +120,7 @@ p {
     border-radius: 7px;
     padding: 11px 18px;
     background: linear-gradient(135deg, #e2c77f, #b88b3d);
-    color: #2d1a0f;
+    color: #0d1118;
     text-decoration: none;
     cursor: pointer;
     font-weight: bold;
@@ -149,7 +148,7 @@ p {
 }
 
 .event-detail {
-    background: rgba(48, 26, 16, 0.86);
+    background: rgba(10, 20, 38, 0.86);
     padding: 25px;
     border-radius: 10px;
     border: 1px solid rgba(216, 183, 106, 0.48);
@@ -168,7 +167,7 @@ p {
 }
 
 .form {
-    background: rgba(48, 26, 16, 0.86);
+    background: rgba(10, 20, 38, 0.86);
     padding: 25px;
     border-radius: 10px;
     border: 1px solid rgba(216, 183, 106, 0.48);
@@ -194,7 +193,7 @@ select {
     border-radius: 6px;
     font: inherit;
     color: #fff;
-    background: rgba(25, 16, 11, 0.78);
+    background: rgba(7, 14, 26, 0.82);
 }
 
 input::placeholder,
@@ -239,7 +238,7 @@ legend {
 
 table {
     width: 100%;
-    background: rgba(48, 26, 16, 0.86);
+    background: rgba(10, 20, 38, 0.86);
     border-collapse: collapse;
     border: 1px solid rgba(216, 183, 106, 0.45);
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.24);
@@ -247,7 +246,7 @@ table {
 
 th {
     color: #f5e8c2;
-    background: rgba(80, 48, 27, 0.82);
+    background: rgba(18, 34, 58, 0.88);
 }
 
 th,
@@ -490,7 +489,7 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(40, 25, 18, 0.7);
+    background: rgba(10, 20, 36, 0.72);
     border: 1px solid rgba(212, 175, 55, 0.5);
 }
 
