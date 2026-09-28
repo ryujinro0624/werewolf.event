@@ -33,7 +33,7 @@ def send_email(to_address, subject, body, bcc=None):
 
     msg.set_content(body)
 
-    with smtplib.SMTP(GMAIL_HOST, GMAIL_PORT) as smtp:
+    with smtplib.SMTP(GMAIL_HOST, GMAIL_PORT, timeout=10) as smtp:
         smtp.starttls()
         smtp.login(gmail_address, gmail_app_password)
         smtp.send_message(msg)
@@ -748,7 +748,9 @@ def apply_event(event_id):
                     try:
                         send_email(recipient, admin_subject, admin_body)
                     except Exception as e:
-                        print(f"運営通知メール送信失敗: {recipient}: {e}")
+                        app.logger.exception(
+                            "管理者への予約通知メール送信に失敗しました: %s", e
+                        )
 
 
             conn = get_db()
