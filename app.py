@@ -143,6 +143,323 @@ def init_db():
         ("",)
     )
 
+    # Render / 新規環境用の追加DB設定
+    app_columns = {row[1] for row in conn.execute("PRAGMA table_info(applications)").fetchall()}
+    if "result_email_sent" not in app_columns:
+        conn.execute(
+            "ALTER TABLE applications ADD COLUMN result_email_sent INTEGER NOT NULL DEFAULT 0"
+        )
+
+    if "status" not in gm_columns:
+        conn.execute(
+            "ALTER TABLE gm_requests ADD COLUMN status TEXT NOT NULL DEFAULT '未対応'"
+        )
+
+    profile_columns = {row[1] for row in conn.execute("PRAGMA table_info(profile)").fetchall()}
+    if "gm_fee" not in profile_columns:
+        conn.execute("ALTER TABLE profile ADD COLUMN gm_fee TEXT NOT NULL DEFAULT ''")
+    if "bio" not in profile_columns:
+        conn.execute("ALTER TABLE profile ADD COLUMN bio TEXT NOT NULL DEFAULT ''")
+    if "gm_fee_detail" not in profile_columns:
+        conn.execute("ALTER TABLE profile ADD COLUMN gm_fee_detail TEXT NOT NULL DEFAULT ''")
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
+            price TEXT NOT NULL DEFAULT '',
+            image_filename TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            sales_url TEXT NOT NULL DEFAULT ''
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS product_images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id INTEGER NOT NULL,
+            image_filename TEXT NOT NULL,
+            image_order INTEGER NOT NULL DEFAULT 1
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS email_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            template_key TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            subject TEXT NOT NULL DEFAULT '',
+            body TEXT NOT NULL DEFAULT '',
+            enabled INTEGER NOT NULL DEFAULT 1
+        )
+    """)
+
+    conn.execute("""
+        UPDATE profile
+        SET
+            gm_fee = CASE WHEN gm_fee = '' THEN ? ELSE gm_fee END,
+            bio = CASE WHEN bio = '' THEN ? ELSE bio END,
+            gm_fee_detail = CASE WHEN gm_fee_detail = '' THEN ? ELSE gm_fee_detail END
+        WHERE id = 1
+    """, (
+        "基本料金(4時間)：500円/1人",
+        "2022年4月に人狼ゲームを始めると共に、音大生人狼サークル「MusicWolf」を設立し、代表を務める。",
+        "延長料金(1時間)：100円/1人"
+    ))
+
+    # 初期メールテンプレート
+    email_templates = [
+        (
+            "reservation_accepted", "予約受付",
+            "【{{event_name}}】予約受付のお知らせ",
+            """{{name}} 様
+
+「{{event_name}}」へのご予約を受け付けました。
+
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+料金：{{price}}円
+
+当日はお気をつけてお越しください。
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "waitlist", "キャンセル待ち受付",
+            "【{{event_name}}】キャンセル待ち受付のお知らせ",
+            """{{name}} 様
+
+「{{event_name}}」へのお申し込みを、キャンセル待ちとして受け付けました。
+
+キャンセルが発生した場合は、改めてご連絡いたします。
+
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+料金：{{price}} 円
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "waitlist_contact", "打診",
+            "【{{event_name}}】参加についてのご案内",
+            """{{name}} 様
+
+「{{event_name}}」について、参加のご案内が可能となりました。
+
+参加をご希望の場合は、こちらのメールへご返信ください。
+
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+料金：{{price}}円
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "lottery_applied", "抽選応募受付",
+            "【{{event_name}}】抽選応募受付のお知らせ",
+            """{{name}} 様
+
+「{{event_name}}」への抽選応募を受け付けました。
+
+抽選結果は改めてご案内いたします。
+
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+料金：{{price}} 円
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "lottery_won", "当選",
+            "【{{event_name}}】抽選結果のお知らせ",
+            """{{name}} 様
+
+「{{event_name}}」の抽選結果についてご案内いたします。
+
+このたび、当選となりました。
+
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+料金：{{price}}円
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "lottery_lost", "落選",
+            "【{{event_name}}】抽選結果のお知らせ",
+            """{{name}} 様
+
+「{{event_name}}」の抽選結果についてご案内いたします。
+
+今回は落選となりました。
+
+ご応募いただき、ありがとうございました。
+
+またの応募を心よりおまちしております。
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "inquiry_complete", "お問合せ完了",
+            "【{{event_name}}】お問い合わせを受け付けました",
+            """{{name}} 様
+
+お問い合わせありがとうございます。
+
+以下の内容でお問い合わせを受け付けました。
+
+{{message}}
+
+担当者より改めてご連絡いたします。
+
+Ryu♪
+
+Mail：ryu.jinro0624@gmail.com
+X：https://x.com/RyuJinro0624"""
+        ),
+        (
+            "lottery_daily_summary", "抽選応募集計",
+            "【{{event_name}}】抽選応募状況のお知らせ",
+            """抽選応募状況をお知らせします。
+
+イベント名：{{event_name}}
+開催日：{{event_date}}
+
+本日の応募者数：{{today_count}}名
+現在の応募者総数：{{total_count}}名
+定員：{{capacity}}名
+
+{{applicant_list}}
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "first_reservation_admin", "先着予約通知（運営）",
+            "【{{event_name}}】先着予約がありました",
+            """先着予約を受け付けました。
+
+イベント名：{{event_name}}
+開催日：{{event_date}}
+時間：{{event_time}}
+会場：{{venue}}
+会場住所：{{venue_address}}
+料金：{{price}}円
+
+予約者名：{{name}}
+メールアドレス：{{email}}
+電話番号：{{phone}}
+
+ご質問・ご連絡事項：
+{{message}}
+
+{{organizer}}
+{{contact}}"""
+        ),
+        (
+            "gm_request_admin", "GM依頼・お問い合わせ通知（運営）",
+            "【GM依頼・お問い合わせ】新しいお問い合わせがありました",
+            """新しいGM依頼・お問い合わせを受け付けました。
+
+内容：{{inquiry_type}}
+
+お名前：{{name}}
+メールアドレス：{{email}}
+電話番号：{{phone}}
+
+希望場所：{{preferred_place_type}}
+希望場所詳細：{{preferred_place}}
+希望日時：{{preferred_date}}
+
+希望ゲーム内容：
+{{game_content}}
+
+お問い合わせ・ご要望：
+{{message}}
+
+受付日時：{{created_at}}"""
+        ),
+    ]
+
+    for template_key, name, subject, body in email_templates:
+        conn.execute("""
+            INSERT OR IGNORE INTO email_templates
+            (template_key, name, subject, body, enabled)
+            VALUES (?, ?, ?, ?, 1)
+        """, (template_key, name, subject, body))
+
+    # プロフィール初期データ
+    conn.execute("""
+        UPDATE profile
+        SET
+            gm_fee = CASE WHEN gm_fee = '' THEN ? ELSE gm_fee END,
+            bio = CASE WHEN bio = '' THEN ? ELSE bio END,
+            gm_fee_detail = CASE WHEN gm_fee_detail = '' THEN ? ELSE gm_fee_detail END
+        WHERE id = 1
+    """, (
+        "基本料金(4時間)：500円/1人",
+        "2022年4月に人狼ゲームを始めると共に、音大生人狼サークル「MusicWolf」を設立し、代表を務める。",
+        "延長料金(1時間)：100円/1人"
+    ))
+
+    # 商品初期データ
+    conn.execute("""
+        INSERT OR IGNORE INTO products
+        (id, name, description, price, image_filename, sales_url)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        1,
+        "MusicWolf人狼カード",
+        """人狼サークルが作った、初めての方にも優しい人狼カード
+
+【MusicWolf 人狼カードの特徴】
+・役職説明が丁寧で初めて引く役職でも安心
+・オープンルール対応役職多数でより盛り上がれる
+・一部役職に(A,B)とつけたことで様々な配役にも対応
+
+【役職一覧】(全54枚/26種)
+村人9/占い師2(A,B)/霊媒師2(A,B)/騎士2(A,B)/パン屋1/
+ハンター9/ストーカー1/悪魔1/魔女1/共有者2/猫又1/
+人狼4/異狼1/狼の子1/狂人2(A,B)/狂信者1/狂人ハンター1/
+自爆狂人1/星の使徒4/星のハンター1/妖狐1/背徳者1/
+ねずみ1/キューピッド1/悪女1/恋人2
+
+制作：MusicWolf
+監修：Ryu♪
+イラスト：さく太""",
+        "3000円（税込・送料別）",
+        None,
+        "https://ryujinro.booth.pm/items/7757451"
+    ))
+
+    # 商品画像初期データ
+    product_images = [
+        ("product_1_1_IMG_1717.jpeg", 1),
+        ("product_1_2_1.png", 2),
+        ("product_1_3_2.png", 3),
+        ("product_1_4_3.png", 4),
+        ("product_1_5_4.png", 5),
+    ]
+
+    for filename, image_order in product_images:
+        conn.execute("""
+            INSERT OR IGNORE INTO product_images
+            (product_id, image_filename, image_order)
+            VALUES (1, ?, ?)
+        """, (filename, image_order))
+
     conn.commit()
     conn.close()
 
