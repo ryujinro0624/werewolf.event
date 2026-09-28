@@ -1474,7 +1474,7 @@ def new_event():
             (name, description, event_date, event_time, price, capacity, venue, venue_address,
              contact, admin_email_recipients, organizer, recruitment_type, image_filename,
              stock_circle_threshold, stock_circle_enabled, is_published)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, data)
         conn.commit()
         conn.close()
