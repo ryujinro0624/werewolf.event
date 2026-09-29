@@ -5,38 +5,32 @@ from werkzeug.utils import secure_filename
 import random
 import os
 from datetime import datetime, timedelta, timezone
-import smtplib
-from email.message import EmailMessage
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-GMAIL_HOST = "smtp.gmail.com"
-GMAIL_PORT = 587
-
+RESEND_FROM = "onboarding@resend.dev"
 
 def send_email(to_address, subject, body, bcc=None):
-    gmail_address = os.getenv("GMAIL_ADDRESS")
-    gmail_app_password = os.getenv("GMAIL_APP_PASSWORD")
+    import resend
 
-    if not gmail_address or not gmail_app_password:
-        raise RuntimeError("Gmailの設定が見つかりません。")
+    resend.api_key = os.getenv("RESEND_API_KEY")
+    if not resend.api_key:
+        raise RuntimeError("ResendのAPIキーが見つかりません。")
 
-    msg = EmailMessage()
-    msg["From"] = gmail_address
-    msg["To"] = to_address
-    msg["Subject"] = subject
-
+    recipients = [to_address]
     if bcc:
-        msg["Bcc"] = ", ".join(bcc)
+        recipients.extend(bcc)
 
-    msg.set_content(body)
+    params = {
+        "from": RESEND_FROM,
+        "to": recipients,
+        "subject": subject,
+        "text": body,
+    }
 
-    with smtplib.SMTP(GMAIL_HOST, GMAIL_PORT, timeout=10) as smtp:
-        smtp.starttls()
-        smtp.login(gmail_address, gmail_app_password)
-        smtp.send_message(msg)
+    return resend.Emails.send(params)
 
 
 BASE_DIR = Path(__file__).resolve().parent
