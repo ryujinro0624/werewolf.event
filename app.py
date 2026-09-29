@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 import sqlite3
 from pathlib import Path
 from werkzeug.utils import secure_filename
@@ -1092,6 +1092,18 @@ def admin():
     conn.close()
     return render_template("admin.html", events=events)
 
+
+
+@app.route("/admin/backup")
+def admin_backup():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin_login"))
+
+    return send_file(
+        DB_PATH,
+        as_attachment=True,
+        download_name="events_backup.db"
+    )
 
 
 @app.route("/profile")
